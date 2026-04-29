@@ -6,17 +6,7 @@ import { TravelDetailsSelector } from './TravelDetailsSelector';
 import { ActivitySelector } from './ActivitySelector';
 import { LLMResponse } from './LLMResponse';
 import { Plane, Sparkles } from 'lucide-react';
-
-interface TravelQuery {
-  destination: string;
-  tripType: string[];
-  budget: number;
-  duration: number;
-  travelers: number;
-  accommodation: string;
-  activities: string[];
-  travelStyle: string;
-}
+import type { TravelQuery } from '../../api';
 
 export function TravelPlannerInterface() {
   const [currentStep, setCurrentStep] = useState(1);

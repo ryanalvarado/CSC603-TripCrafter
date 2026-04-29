@@ -79,16 +79,18 @@ The app will be running at `http://localhost:5173`. Open this URL in your browse
 ```
 CSC603-TripCrafter/
 ├── Frontend/          # React + Vite app
-│   └── src/
-│       └── app/
-│           └── components/
-│               ├── TravelPlannerInterface.tsx   # Main 5-step wizard
-│               ├── DestinationSelector.tsx
-│               ├── PreferencesSelector.tsx
-│               ├── BudgetSelector.tsx
-│               ├── TravelDetailsSelector.tsx
-│               ├── ActivitySelector.tsx
-│               └── LLMResponse.tsx              # Results display
+│   ├── src/
+│   │   ├── api.ts     # API client + shared TypeScript types
+│   │   └── app/
+│   │       └── components/
+│   │           ├── TravelPlannerInterface.tsx   # Main 5-step wizard
+│   │           ├── DestinationSelector.tsx
+│   │           ├── PreferencesSelector.tsx
+│   │           ├── BudgetSelector.tsx
+│   │           ├── TravelDetailsSelector.tsx
+│   │           ├── ActivitySelector.tsx
+│   │           └── LLMResponse.tsx              # Live LLM results display
+│   └── vite.config.ts # Dev proxy → Backend on :8000
 ├── Backend/           # FastAPI server
 │   ├── main.py        # API endpoints + CORS config
 │   ├── models.py      # Pydantic request/response schemas
