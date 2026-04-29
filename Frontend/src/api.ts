@@ -54,8 +54,10 @@ export interface ItineraryResponse {
   budget_breakdown: BudgetBreakdown;
 }
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
+
 export async function generateItinerary(query: TravelQuery): Promise<ItineraryResponse> {
-  const res = await fetch("/api/generate-itinerary", {
+  const res = await fetch(`${API_BASE}/api/generate-itinerary`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(query),

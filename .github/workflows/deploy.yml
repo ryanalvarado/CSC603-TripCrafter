@@ -1,0 +1,103 @@
+name: Deploy TripCrafter
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: us-west-1
+
+jobs:
+  # ── Backend → Lambda ──────────────────────────────────────────────
+  deploy-backend:
+    name: Deploy Backend to Lambda
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies into package dir
+        working-directory: Backend
+        run: pip install -r requirements.txt -t ./package --quiet
+
+      - name: Copy source files into package
+        working-directory: Backend
+        run: cp main.py models.py llm_service.py ./package/
+
+      - name: Zip package
+        working-directory: Backend/package
+        run: zip -r ../lambda.zip . -q
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+            --zip-file fileb://Backend/lambda.zip \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Update Lambda environment variables
+        run: |
+          aws lambda update-function-configuration \
+            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+            --environment "Variables={HF_API_TOKEN=${{ secrets.HF_API_TOKEN }},ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}}" \
+            --region ${{ env.AWS_REGION }}
+
+  # ── Frontend → S3 + CloudFront ────────────────────────────────────
+  deploy-frontend:
+    name: Deploy Frontend to S3
+    runs-on: ubuntu-latest
+    needs: deploy-backend  # ensures CORS origin is set before frontend goes live
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: Frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: Frontend
+        run: npm install
+
+      - name: Build
+        working-directory: Frontend
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync to S3
+        run: |
+          aws s3 sync Frontend/dist s3://${{ secrets.S3_BUCKET_NAME }} \
+            --delete \
+            --cache-control "public,max-age=31536000,immutable" \
+            --exclude "index.html"
+
+          # index.html must not be cached so users always get the latest deploy
+          aws s3 cp Frontend/dist/index.html s3://${{ secrets.S3_BUCKET_NAME }}/index.html \
+            --cache-control "no-cache,no-store,must-revalidate"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
