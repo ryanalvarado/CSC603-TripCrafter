@@ -34,10 +34,10 @@ cd Backend
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the `Backend/` folder with your Gemini token:
+Create a `.env` file in the `Backend/` folder with your Gemini API key:
 
 ```
-GEMINI_API_KEY=your_token_here
+GEMINI_API_KEY=your-gemini-api-key-here
 ```
 
 Start the server:
