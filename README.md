@@ -10,7 +10,7 @@ An AI-powered travel planning web app that generates personalized itineraries wi
 |-------|-----------|
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS |
 | Backend | Python, FastAPI, Pydantic |
-| LLM | Qwen2.5-72B-Instruct (open-source, via HuggingFace Inference API) |
+| LLM | gemini-2.5-flash |
 
 ## Prerequisites
 
