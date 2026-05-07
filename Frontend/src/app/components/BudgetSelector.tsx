@@ -33,7 +33,7 @@ export function BudgetSelector({ budget, onBudgetChange }: BudgetSelectorProps) 
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
           <DollarSign className="w-6 h-6 text-purple-600" />
-          What's your budget per person?
+          What's your total trip budget?
         </h2>
         <p className="text-gray-600">Select a range or use the slider for precision</p>
       </div>
@@ -69,7 +69,7 @@ export function BudgetSelector({ budget, onBudgetChange }: BudgetSelectorProps) 
       <div className="bg-gray-50 rounded-xl p-6">
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-semibold text-gray-600">Fine-tune your budget:</span>
+            <span className="text-sm font-semibold text-gray-600">Fine-tune your total budget:</span>
             <span className={`text-2xl font-bold ${currentRange.color}`}>
               ${budget.toLocaleString()}
             </span>

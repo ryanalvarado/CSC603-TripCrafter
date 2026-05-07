@@ -1,12 +1,16 @@
-import { Calendar, Users, Hotel, Home, Castle, Tent } from 'lucide-react';
+import { Calendar, Users, Hotel, Home, Castle, Tent, MapPin } from 'lucide-react';
 
 interface TravelDetailsSelectorProps {
   duration: number;
   travelers: number;
   accommodation: string;
+  currentLocation: string;
+  startDate: string;
   onDurationChange: (duration: number) => void;
   onTravelersChange: (travelers: number) => void;
   onAccommodationChange: (accommodation: string) => void;
+  onCurrentLocationChange: (currentLocation: string) => void;
+  onStartDateChange: (startDate: string) => void;
 }
 
 const accommodationTypes = [
@@ -16,22 +20,55 @@ const accommodationTypes = [
   { id: 'hostel', name: 'Hostel/Budget', icon: Tent, description: 'Budget-friendly' },
 ];
 
-const durationOptions = [3, 5, 7, 10, 14, 21];
-const travelerOptions = [1, 2, 3, 4, 5, 6];
+const durationOptions = [3, 4, 5, 6, 7];
+const travelerOptions = [1, 2, 3, 4, 5];
 
 export function TravelDetailsSelector({
   duration,
   travelers,
   accommodation,
+  currentLocation,
+  startDate,
   onDurationChange,
   onTravelersChange,
   onAccommodationChange,
+  onCurrentLocationChange,
+  onStartDateChange,
 }: TravelDetailsSelectorProps) {
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Trip Details</h2>
         <p className="text-gray-600">Customize the specifics of your journey</p>
+      </div>
+
+      {/* Current Location */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <MapPin className="w-5 h-5 text-purple-600" />
+          <h3 className="text-lg font-bold text-gray-800">Where are you traveling from?</h3>
+        </div>
+        <input
+          type="text"
+          value={currentLocation}
+          onChange={(event) => onCurrentLocationChange(event.target.value)}
+          placeholder="San Francisco, CA"
+          className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-purple-500"
+        />
+      </div>
+
+      {/* Start Date */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="w-5 h-5 text-purple-600" />
+          <h3 className="text-lg font-bold text-gray-800">What is the first day of your trip?</h3>
+        </div>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(event) => onStartDateChange(event.target.value)}
+          className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-gray-800 outline-none transition-colors focus:border-purple-500"
+        />
       </div>
 
       {/* Duration */}
