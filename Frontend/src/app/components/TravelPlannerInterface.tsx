@@ -8,10 +8,14 @@ import { LLMResponse } from './LLMResponse';
 import { Plane, Sparkles } from 'lucide-react';
 import type { TravelQuery } from '../../api';
 
+const getDefaultStartDate = () => new Date().toISOString().slice(0, 10);
+
 export function TravelPlannerInterface() {
   const [currentStep, setCurrentStep] = useState(1);
   const [showResults, setShowResults] = useState(false);
   const [query, setQuery] = useState<TravelQuery>({
+    currentLocation: 'San Francisco, CA',
+    startDate: getDefaultStartDate(),
     destination: '',
     tripType: [],
     budget: 2000,
@@ -34,6 +38,8 @@ export function TravelPlannerInterface() {
     setCurrentStep(1);
     setShowResults(false);
     setQuery({
+      currentLocation: 'San Francisco, CA',
+      startDate: getDefaultStartDate(),
       destination: '',
       tripType: [],
       budget: 2000,
@@ -76,12 +82,12 @@ export function TravelPlannerInterface() {
           <div className="inline-flex items-center gap-2 mb-4">
             <Plane className="w-8 h-8 text-purple-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Visual Travel Planner
+              TripCrafter
             </h1>
             <Sparkles className="w-8 h-8 text-pink-600" />
           </div>
           <p className="text-gray-600">
-            Build your perfect trip using visual selections - no typing required!
+            Build a budget-aware itinerary with flights, stays, dining, weather, and souvenir ideas.
           </p>
         </div>
 
@@ -150,9 +156,13 @@ export function TravelPlannerInterface() {
               duration={query.duration}
               travelers={query.travelers}
               accommodation={query.accommodation}
+              currentLocation={query.currentLocation}
+              startDate={query.startDate}
               onDurationChange={(duration) => updateQuery({ duration })}
               onTravelersChange={(travelers) => updateQuery({ travelers })}
               onAccommodationChange={(accommodation) => updateQuery({ accommodation })}
+              onCurrentLocationChange={(currentLocation) => updateQuery({ currentLocation })}
+              onStartDateChange={(startDate) => updateQuery({ startDate })}
             />
           )}
           {currentStep === 5 && (

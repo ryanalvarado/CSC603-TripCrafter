@@ -3,14 +3,13 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from huggingface_hub import InferenceClient
+from google import genai
 from mangum import Mangum
 
 from models import TravelQuery, ItineraryResponse
 from llm_service import generate_itinerary
 
-load_dotenv()
-
+load_dotenv("myToken.env")
 app = FastAPI(title="TripCrafter API", version="1.0.0")
 
 _raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000")
@@ -23,7 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = InferenceClient(token=os.getenv("HF_API_TOKEN"))
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=gemini_api_key) if gemini_api_key else None
+
 
 
 @app.get("/api/health")
@@ -33,6 +34,8 @@ def health():
 
 @app.post("/api/generate-itinerary", response_model=ItineraryResponse)
 def create_itinerary(query: TravelQuery):
+    if client is None:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY is not configured in Backend/myToken.env")
     try:
         return generate_itinerary(query, client)
     except Exception as e:
