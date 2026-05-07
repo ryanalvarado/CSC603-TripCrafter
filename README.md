@@ -34,21 +34,16 @@ cd Backend
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the `Backend/` folder with your HuggingFace token:
+Create a `.env` file in the `Backend/` folder with your Gemini token:
 
 ```
-HF_API_TOKEN=hf_your-token-here
+GEMINI_API_KEY=your_token_here
 ```
-
-To get a free token:
-1. Create a free account at [huggingface.co](https://huggingface.co)
-2. Go to **Settings > Access Tokens**
-3. Click **Create new token**, select **Read** access, and copy it
 
 Start the server:
 
 ```bash
-uvicorn main:app --reload --port 8000
+uvicorn main:app --reload --port 8001
 ```
 
 The API will be running at `http://localhost:8000`. You can verify by visiting `http://localhost:8000/api/health`.
