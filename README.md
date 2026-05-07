@@ -16,7 +16,7 @@ An AI-powered travel planning web app that generates personalized itineraries wi
 
 - **Node.js** v18+ — [Download](https://nodejs.org/)
 - **Python** 3.10+ — [Download](https://www.python.org/downloads/)
-- **HuggingFace API Token** (free) — [Get one here](https://huggingface.co/settings/tokens)
+- **Gemini_API_Key
 
 ## Getting Started
 
