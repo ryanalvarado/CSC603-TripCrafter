@@ -46,7 +46,7 @@ Start the server:
 uvicorn main:app --reload --port 8001
 ```
 
-The API will be running at `http://localhost:8000`. You can verify by visiting `http://localhost:8000/api/health`.
+The API will be running at `http://localhost:8001`. You can verify by visiting `http://localhost:8001/api/health`.
 
 ### 3. Start the Frontend
 
