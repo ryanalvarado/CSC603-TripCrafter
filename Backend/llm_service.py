@@ -1,11 +1,19 @@
+"""
+LLM itinerary generation service.
+
+Builds a context-enriched prompt using RAG-retrieved knowledge and
+real-time tool results, then calls the Qwen LLM to generate a
+personalized travel itinerary.
+
+Author: Ryan Alvarado
+"""
+
 import json
 
 from huggingface_hub import InferenceClient
 
 from models import TravelQuery, ItineraryResponse
 
-
-# Open-source model hosted free on HuggingFace Inference API
 MODEL_ID = "Qwen/Qwen2.5-72B-Instruct"
 
 DESTINATION_NAMES: dict[str, str] = {
@@ -24,9 +32,24 @@ DESTINATION_NAMES: dict[str, str] = {
 }
 
 
-def build_prompt(query: TravelQuery) -> str:
+def build_prompt(
+    query: TravelQuery,
+    rag_context: str = "",
+    tool_results: str = "",
+) -> str:
     dest = DESTINATION_NAMES.get(query.destination, query.destination)
     num_days = min(query.duration, 7)
+
+    context_block = ""
+    if rag_context:
+        context_block += (
+            f"\n\n--- Retrieved Destination Knowledge (RAG) ---\n{rag_context}"
+        )
+    if tool_results:
+        context_block += (
+            f"\n\n--- Real-Time Tool Results ---\n{tool_results}"
+        )
+
     return f"""You are TripCrafter, an expert AI travel planner. Generate a detailed, personalized travel itinerary.
 
 Trip Details:
@@ -38,6 +61,7 @@ Trip Details:
 - Travel style/pace: {query.travelStyle}
 - Trip types: {", ".join(query.tripType)}
 - Preferred activities: {", ".join(query.activities)}
+{context_block}
 
 Instructions:
 1. Generate a day-by-day itinerary for {num_days} days.
@@ -47,6 +71,7 @@ Instructions:
 5. Include cultural tips: 4-5 essential local phrases with pronunciation context and 3-4 etiquette tips.
 6. Provide a realistic budget breakdown where flights + accommodation + activities + food = {query.budget}.
 7. Write an insights section explaining why this destination is perfect for these preferences.
+8. Use the retrieved destination knowledge and real-time data above to ground your recommendations in verified facts. Prefer specific details from the knowledge base over general knowledge.
 
 Respond with ONLY valid JSON (no markdown, no explanation) matching this schema:
 {{
@@ -83,8 +108,13 @@ Respond with ONLY valid JSON (no markdown, no explanation) matching this schema:
 }}"""
 
 
-def generate_itinerary(query: TravelQuery, client: InferenceClient) -> ItineraryResponse:
-    prompt = build_prompt(query)
+def generate_itinerary(
+    query: TravelQuery,
+    client: InferenceClient,
+    rag_context: str = "",
+    tool_results: str = "",
+) -> ItineraryResponse:
+    prompt = build_prompt(query, rag_context, tool_results)
 
     response = client.chat_completion(
         model=MODEL_ID,
@@ -101,7 +131,6 @@ def generate_itinerary(query: TravelQuery, client: InferenceClient) -> Itinerary
 
     raw = response.choices[0].message.content.strip()
 
-    # Strip markdown fences if the model wraps them
     if raw.startswith("```"):
         raw = raw.split("\n", 1)[1]
     if raw.endswith("```"):
